@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>배터리 모니터 (전)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>🔋 배터리 모니터</h1>
+
+<div class="controls">
+  <button id="charge-btn">충전 +10%</button>
+  <button id="use-btn">사용 -10%</button>
+</div>
+
+<section>
+  <h2>퍼센트</h2>
+  <p id="percent-display">50%</p>
+</section>
+
+<section>
+  <h2>배터리 아이콘</h2>
+  <div class="icon-frame">
+    <div id="icon-fill"></div>
+  </div>
+</section>
+
+<section>
+  <h2>상태 안내</h2>
+  <p id="status-message">정상 사용 중이에요</p>
+</section>
+
+<script src="ui.js"></script>
+<script src="battery.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

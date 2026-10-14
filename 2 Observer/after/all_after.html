@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>배터리 모니터 (옵저버 패턴 적용 후)</title>
+    <style>
+        body { font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; }
+        button { cursor: pointer; padding: 8px 14px; margin-right: 6px; font-size: 16px; }
+        #percent-display { font-size: 40px; font-weight: bold; margin: 0; }
+        .icon-frame { width: 120px; height: 50px; border: 3px solid #333; border-radius: 4px; padding: 3px; }
+        #icon-fill { height: 100%; background: #2ecc71; border-radius: 2px; transition: width 0.2s, background 0.2s; }
+        #icon-fill.low { background: #e74c3c; }
+        #status-message { color: #555; }
+    </style>
+</head>
+<body>
+<h1>🔋 배터리 모니터</h1>
+
+<div class="controls">
+    <button id="charge-btn">충전 +10%</button>
+    <button id="use-btn">사용 -10%</button>
+</div>
+
+<section>
+    <h2>퍼센트</h2>
+    <p id="percent-display">50%</p>
+</section>
+
+<section>
+    <h2>배터리 아이콘</h2>
+    <div class="icon-frame">
+        <div id="icon-fill"></div>
+    </div>
+</section>
+
+<section>
+    <h2>상태 안내</h2>
+    <p id="status-message">정상 사용 중이에요</p>
+</section>
+
+<script>
+    // ===== ui.js 부분 =====
+    // 화면을 갱신하는 함수 모음. 이제 "옵저버"가 된다 —
+    // BatteryMonitor가 이름으로 직접 부르지 않고, 아래에서 subscribe()로 등록해줘야만 호출된다.
+
+    const LOW_BATTERY_THRESHOLD = 20;
+
+    class PercentDisplayObserver {
+        update(subject) {
+            document.getElementById('percent-display').textContent = subject.level + '%';
+        }
+    }
+
+    class IconDisplayObserver {
+        update(subject) {
+            const fill = document.getElementById('icon-fill');
+            fill.style.width = subject.level + '%';
+            fill.classList.toggle('low', subject.level <= LOW_BATTERY_THRESHOLD);
+        }
+    }
+
+    class StatusMessageObserver {
+        update(subject) {
+            const el = document.getElementById('status-message');
+            if (subject.level >= 100) {
+                el.textContent = '완충됐어요';
+            } else if (subject.level <= LOW_BATTERY_THRESHOLD) {
+                el.textContent = '⚠️ 배터리가 부족해요, 충전해주세요';
+            } else {
+                el.textContent = '정상 사용 중이에요';
+            }
+        }
+    }
+
+    // ===== battery.js 부분 =====
+    // 배터리 잔량 하나를 관리하는 클래스 = Subject(발행자)
+    // ui 함수 이름을 이 클래스 어디에도 직접 쓰지 않는다.
+    // 대신 구독해놓은 함수들(this.observers)에게 값이 바뀔 때마다 notify()로 알린다.
+
+    class BatteryMonitor {
+        constructor(startLevel) {
+            this.level = startLevel;   // 예제의 state 역할
+            this.observers = [];
+        }
+
+        attach(observer) {
+            if (this.observers.includes(observer)) {
+                return console.log('Subject: Observer has been attached already.');
+            }
+            this.observers.push(observer);
+            console.log('Subject: Attached an observer.');
+        }
+
+        detach(observer) {
+            const index = this.observers.indexOf(observer);
+            if (index === -1) {
+                return console.log('Subject: Nonexistent observer.');
+            }
+            this.observers.splice(index, 1);
+            console.log('Subject: Detached an observer.');
+        }
+
+        notify() {
+            for (const observer of this.observers) {
+                observer.update(this);
+            }
+        }
+
+        // 예제의 someBusinessLogic에 해당: 상태를 바꾸고 알림
+        charge(amount) {
+            this.level = Math.min(100, this.level + amount);
+            this.notify();
+        }
+
+        use(amount) {
+            this.level = Math.max(0, this.level - amount);
+            this.notify();
+        }
+    }
+
+    // ===== main.js 부분 =====
+    const battery = new BatteryMonitor(50);
+
+    const percentObserver = new PercentDisplayObserver();
+    const iconObserver = new IconDisplayObserver();
+    const statusObserver = new StatusMessageObserver();
+
+    battery.attach(percentObserver);
+    battery.attach(iconObserver);
+    battery.attach(statusObserver);
+
+    battery.notify();
+
+    document.getElementById('charge-btn').addEventListener('click', () => battery.charge(10));
+    document.getElementById('use-btn').addEventListener('click', () => battery.use(10));
+</script>
+</body>
+</html>

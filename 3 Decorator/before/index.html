@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>적용 전) 결제 버튼 핸들러</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>결제 버튼 핸들러</h1>
+    <p>데코레이터 적용 전 코드입니다. 기능을 켜고 끄고, 순서를 바꿔 보세요.</p>
+  </header>
+
+  <section class="panel">
+    <h2>설정</h2>
+
+    <fieldset>
+      <legend>켜서 쓸 기능</legend>
+      <label><input type="checkbox" id="optLog" checked> 클릭 로그 남기기</label>
+      <label><input type="checkbox" id="optAuth" checked> 로그인 체크</label>
+      <label><input type="checkbox" id="optGuard" checked> 중복 클릭 방지 (1.5초)</label>
+      <label><input type="checkbox" id="optLoading" checked> 로딩 표시</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>감싸는 순서</legend>
+      <label><input type="radio" name="order" value="A" checked> 순서 A: 로그 → 로그인 → 중복방지 → 로딩</label>
+      <p class="hint">막힌 클릭도 전부 로그에 남아요.</p>
+      <label><input type="radio" name="order" value="B"> 순서 B: 로그인 → 중복방지 → 로그 → 로딩</label>
+      <p class="hint">통과한 클릭만 로그에 남아요.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>사용자 상태</legend>
+      <label><input type="checkbox" id="loggedIn"> 로그인된 상태</label>
+    </fieldset>
+
+    <button id="payBtn" type="button"><span class="spinner" aria-hidden="true"></span><span id="payLabel">결제하기</span></button>
+  </section>
+
+  <section class="panel logPanel">
+    <h2>로그 <button id="clear" type="button">지우기</button></h2>
+    <ol id="log" aria-live="polite"></ol>
+  </section>
+
+
+</main>
+
+<!-- 로드 순서가 중요해요: 아래쪽 파일이 위쪽 파일의 함수를 가져다 씁니다. -->
+<script src="utils.js"></script>
+<script src="logger.js"></script>
+<script src="ui.js"></script>
+<script src="payService.js"></script>
+<script src="handlers.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
